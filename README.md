@@ -21,7 +21,7 @@
 ![image](https://github.com/user-attachments/assets/affee725-417a-43cf-8158-f2d35fc9d031)
 <img width="530" alt="image" src="https://github.com/user-attachments/assets/9a90cae6-b129-4b0d-bec1-6862f5fbefe2" />
 
-На жаль результат не сильно покращився, але, принаймні, модель навчилася не класифікувати все як 'Negative'
+ На жаль результат не сильно покращився, але, принаймні, модель навчилася не класифікувати все як 'Negative'
 
 Далі ми спробували LSTM. 
 
