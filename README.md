@@ -28,7 +28,7 @@
 
 Попробували додати attention механізм:
 
-```
+```python
 class AttentionLayer(Layer):
     def __init__(self):
         super(AttentionLayer, self).__init__()
