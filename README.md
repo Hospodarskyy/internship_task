@@ -46,6 +46,32 @@ class AttentionLayer(Layer):
         return context_vector
 ```
 
+```python
+# Hyperparameters
+max_sequence_length = 40  
+vocab_size = 5_000  
+embedding_dim = 32  
+
+# Define model architecture
+input_layer = Input(shape=(max_sequence_length,))
+embedding_layer = Embedding(input_dim=vocab_size, output_dim=embedding_dim, input_length=max_sequence_length)(input_layer)
+
+lstm_output = LSTM(64, return_sequences=True)(embedding_layer)  
+attention_output = AttentionLayer()(lstm_output)  # Apply attention
+
+dense_output = Dense(16, activation="relu")(attention_output)
+dropout_layer = Dropout(0.3)(dense_output)
+
+dense_output = Dense(16, activation="relu")(dropout_layer)
+dropout_layer = Dropout(0.3)(dense_output)
+
+output_layer = Dense(3, activation="softmax")(dropout_layer)  # Multi-class classification
+
+# Build model
+att_model = Model(inputs=input_layer, outputs=output_layer)
+att_model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+```
+
 ![image](https://github.com/user-attachments/assets/2ef421e2-6423-467f-9c2d-18640cf64c1e)
 ![image](https://github.com/user-attachments/assets/eb06236d-1874-45eb-b8d2-eaa0a884fc49)
 
