@@ -22,9 +22,33 @@
 ![image](https://github.com/user-attachments/assets/affee725-417a-43cf-8158-f2d35fc9d031)
 <img width="530" alt="image" src="https://github.com/user-attachments/assets/9a90cae6-b129-4b0d-bec1-6862f5fbefe2" />
 
- На жаль результат не сильно покращився, але, принаймні, модель навчилася не класифікувати все як 'Negative'
+На жаль результат не сильно покращився, але, принаймні, модель навчилася не класифікувати все як 'Negative'
 
 Далі ми спробували LSTM. 
+
+Попробували додати attention механізм:
+
+```
+class AttentionLayer(Layer):
+    def __init__(self):
+        super(AttentionLayer, self).__init__()
+
+    def build(self, input_shape):
+        self.W = self.add_weight(name="attn_weights", shape=(input_shape[-1], 1),
+                                 initializer="random_normal", trainable=True)
+        self.b = self.add_weight(name="attn_bias", shape=(1,), initializer="zeros", trainable=True)
+
+    def call(self, inputs):
+        scores = tf.nn.tanh(tf.matmul(inputs, self.W) + self.b)  # Compute attention scores
+        scores = tf.nn.softmax(scores, axis=1)  # Normalize scores across time steps
+        context_vector = scores * inputs  # Apply attention weights
+        context_vector = tf.reduce_sum(context_vector, axis=1)  # Summarize over sequence
+        return context_vector
+```
+
+![image](https://github.com/user-attachments/assets/2ef421e2-6423-467f-9c2d-18640cf64c1e)
+![image](https://github.com/user-attachments/assets/eb06236d-1874-45eb-b8d2-eaa0a884fc49)
+
 
 
 Також ми спробували використати попередньо навчені векторні представлення моделі FastText які підтримує українську мову. Ваги моделі завантажили у шар Embedding. 
