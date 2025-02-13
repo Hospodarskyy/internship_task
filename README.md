@@ -12,6 +12,7 @@
 ![image](https://github.com/user-attachments/assets/ff3502a6-c278-485c-9484-b9d206b2cf33)
 Проте для всіх моделей результати виглядали приблизно однаково:
 <img width="518" alt="image" src="https://github.com/user-attachments/assets/f8efda82-6306-4d83-b6f8-3c8bf206ec2c" />
+
 Бачимо що клас 'Neutral' модель класифікує зовсім некоректно. Та й загальна точність передбачень не сильно відрізняється від random.
 
 
