@@ -1,0 +1,15 @@
+name: myenv
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - fastapi=0.115.8
+  - uvicorn=0.34.0
+  - joblib=1.4.2
+  - scikit-learn
+  - numpy
+  - pandas
+  - pip
+  - pip:
+      - spacy==3.8.3  # Moving Spacy to pip (if Conda doesn't have it)
+      - bertopic==0.16.4
