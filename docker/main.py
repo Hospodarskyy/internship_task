@@ -177,7 +177,7 @@ def analyze_texts(request: TextRequest):
     # Extract sentiment labels
     sentiment_predictions = [map_sentiment(res["label"]) for res in sentiment_results]
 
-    # Prepare response
+    # Prepare the original response
     results = []
     for i, text in enumerate(non_empty_texts):
         results.append({
@@ -192,11 +192,31 @@ def analyze_texts(request: TextRequest):
     if notification:
         response["notification"] = notification
 
-    # Save response as JSON (optional)
-    with open("result.json", "w", encoding="utf-8") as f:
+    # Save original response as JSON (optional)
+    with open("result_full.json", "w", encoding="utf-8") as f:
         json.dump(response, f, ensure_ascii=False, indent=4)
 
+    # Prepare simplified response
+    simplified_results = []
+    for i, text in enumerate(non_empty_texts):
+        simplified_results.append({
+            "review": text,
+            "sentiment": sentiment_predictions[i],
+            "topics": review_topic_groups[i],
+            "complaints": [aspect["sentence"] for aspect in review_aspects[i]],
+            "questions": review_questions[i]
+        })
+
+    simplified_response = {"results": simplified_results}
+    if notification:
+        simplified_response["notification"] = notification
+
+    # Save simplified response as JSON
+    with open("result_simplified.json", "w", encoding="utf-8") as f:
+        json.dump(simplified_response, f, ensure_ascii=False, indent=4)
+
     return response
+
 
 
 
