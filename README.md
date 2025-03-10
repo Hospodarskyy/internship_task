@@ -2,7 +2,8 @@
 
 1. Збір відгуків (від 200 прикладів у TXT, CSV, JSON) 
 
-Для роботи був використаний датасет з відгуками українською з різних сайтів. Посилання на датасет: https://huggingface.co/datasets/vkovenko/cross_domain_uk_reviews.  Ми вибрали 600 відгуків, які користувачі залишили на сайті Rozetka.
+Для роботи був використаний датасет з відгуками українською з різних сайтів. Посилання на датасет: https://huggingface.co/datasets/vkovenko/cross_domain_uk_reviews.  
+Ми вибрали 600 україномовних відгуків, які користувачі залишили на сайті Rozetka.
 
 2. Очищення текстів: видалення стоп-слів, лематизація, нормалізація 
 
@@ -17,72 +18,57 @@
 
 1. Розробити модель для класифікації відгуків за тональністю (позитивний, нейтральний, негативний). Навчити прості ML-моделі (Naive Bayes, Logistic Regression) і порівняти їх з LSTM 
 
-Спробували класифікувати за допомогою класичних алгоритмів (Logistic Regression, Naive Bayes, Random Forest, SVM, KNN):
+Ми здійснили класифікацію за допомогою класичних алгоритмів машинного навчання, таких як Logistic Regression, Naive Bayes, Random Forest, SVM та KNN.
+
 ![image](https://github.com/user-attachments/assets/ff3502a6-c278-485c-9484-b9d206b2cf33)
 
-Проте для всіх моделей результати виглядали приблизно однаково:
+Однак результати для всіх моделей виявилися досить схожими. 
 <img width="518" alt="image" src="https://github.com/user-attachments/assets/f8efda82-6306-4d83-b6f8-3c8bf206ec2c" />
 
-Бачимо що клас 'Neutral' модель класифікує зовсім некоректно. Та й загальна точність передбачень не сильно відрізняється від random.
+Спостерігається, що модель значно некоректно класифікує клас "Neutral". Загальна точність передбачень не демонструє суттєвого покращення порівняно з випадковими прогнозами.
 
+Оскільки результати були незадовільними, ми вирішили збільшити кількість прикладів класів "Positive" та "Neutral" у датасеті.
 
-Оскільки результат був незадовільний, ми вирішили збільшити в датасеті клас 'Positive' та 'Neutral':
 <img width="1115" alt="image" src="https://github.com/user-attachments/assets/e38312e7-2203-45dc-970d-dc9aaaebc325" />
+
 
 ![image](https://github.com/user-attachments/assets/affee725-417a-43cf-8158-f2d35fc9d031)
 <img width="530" alt="image" src="https://github.com/user-attachments/assets/9a90cae6-b129-4b0d-bec1-6862f5fbefe2" />
 
-На жаль результат не сильно покращився, але, принаймні, модель навчилася не класифікувати все як 'Negative'
+На жаль, покращення було незначним, однак модель все ж навчилася не класифікувати всі приклади як "Negative".
 
-Далі ми спробували LSTM. 
-
-Попробували додати attention механізм:
-
-```python
-class AttentionLayer(Layer):
-    def __init__(self):
-        super(AttentionLayer, self).__init__()
-
-    def build(self, input_shape):
-        self.W = self.add_weight(name="attn_weights", shape=(input_shape[-1], 1),
-                                 initializer="random_normal", trainable=True)
-        self.b = self.add_weight(name="attn_bias", shape=(1,), initializer="zeros", trainable=True)
-
-    def call(self, inputs):
-        scores = tf.nn.tanh(tf.matmul(inputs, self.W) + self.b)  # Compute attention scores
-        scores = tf.nn.softmax(scores, axis=1)  # Normalize scores across time steps
-        context_vector = scores * inputs  # Apply attention weights
-        context_vector = tf.reduce_sum(context_vector, axis=1)  # Summarize over sequence
-        return context_vector
-```
-
-```python
-# Hyperparameters
-max_sequence_length = 40  
-vocab_size = 5_000  
-embedding_dim = 32  
-
-# Define model architecture
-input_layer = Input(shape=(max_sequence_length,))
-embedding_layer = Embedding(input_dim=vocab_size, output_dim=embedding_dim, input_length=max_sequence_length)(input_layer)
-
-lstm_output = LSTM(64, return_sequences=True)(embedding_layer)  
-attention_output = AttentionLayer()(lstm_output)  # Apply attention
-
-dense_output = Dense(16, activation="relu")(attention_output)
-dropout_layer = Dropout(0.3)(dense_output)
-
-dense_output = Dense(16, activation="relu")(dropout_layer)
-dropout_layer = Dropout(0.3)(dense_output)
-
-output_layer = Dense(3, activation="softmax")(dropout_layer)  # Multi-class classification
-
-# Build model
-att_model = Model(inputs=input_layer, outputs=output_layer)
-att_model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
-```
+У подальшому ми застосували LSTM для покращення якості класифікації.
 
 ![image](https://github.com/user-attachments/assets/eb06236d-1874-45eb-b8d2-eaa0a884fc49)
+
+### Model Evaluation Metrics
+
+| Class   | Precision | Recall | F1-Score | Support |
+|---------|-----------|--------|----------|---------|
+| Negative| 0.73      | 0.35   | 0.47     | 63      |
+| Neutral | 0.32      | 0.56   | 0.40     | 36      |
+| Positive| 0.66      | 0.73   | 0.69     | 52      |
+| **Accuracy** |         |        | **0.53**  | 151     |
+| **Macro Avg** | 0.57  | 0.55   | 0.52     | 151     |
+| **Weighted Avg** | 0.61  | 0.53   | 0.53     | 151     |
+
+
+Для досягнення кращих результатів ми також додали представлення тексту за допомогою tf-idf та n-grams:
+
+![image](https://github.com/user-attachments/assets/3eab61cc-1376-4de4-9f10-7f929a86296f)
+
+### Model Evaluation Metrics
+
+| Class   | Precision | Recall | F1-Score | Support |
+|---------|-----------|--------|----------|---------|
+| Negative| 0.69      | 0.73   | 0.71     | 62      |
+| Neutral | 0.52      | 0.47   | 0.49     | 36      |
+| Positive| 0.68      | 0.68   | 0.68     | 53      |
+| **Accuracy** |         |        | **0.65**  | 151     |
+| **Macro Avg** | 0.63  | 0.63   | 0.63     | 151     |
+| **Weighted Avg** | 0.65  | 0.65   | 0.65     | 151     |
+
+У порівнянні з початковими результатами, де точність моделі становила 0.53, після застосування tf-idf та n-grams точність покращилася до 0.65. Це свідчить про значне покращення якості класифікації, зокрема у класах "Class 0" та "Class 2", де спостерігається підвищення значень Precision та Recall. Водночас, клас "Class 1" залишається менш точно класифікованим, але загальна ефективність моделі суттєво зросла. 
 
 
 3. Додати тональність у відповідь REST API 
@@ -139,7 +125,7 @@ att_model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metr
 Для вирішення цього завдання ми використали apsect-based sentiment analisys model (ABSA). Конкретніше pyABSA (https://github.com/yangheng95/PyABSA) адже вона була навчена на багатьох мовах, включно з українською. 
 Ця модель здатна виділяти основні сутності в тексті і щодо них робити семантичний аналіз:
 
-```json
+```text
 Review: дуже задоволена покупкою. тканина дуже плотна. прошите гарно. наповнювач також всередині плотний. тепле однозначно. і водночас легке. готуємось до зими в умовах війни(((
 
 aspects: ['тканина', 'наповнювач']
@@ -150,7 +136,7 @@ sentiments: ['Positive', 'Positive']
 
 Для цього ми використали функції бібліотеки spacy.load("uk_core_news_md") і здійснили додатково пошук по ключових словах, таких як: "що", "чому", "де", "коли", "скільки", "звідки" тощо:
 
-```json
+```text
 Review:
 Чому розетка не реагує на негативні відгуки та запитання? Дуже швидко перестав працювати основний брелок. Сенс двосторонньої сигналізації зник 
 
@@ -158,9 +144,10 @@ questions: [Чому розетка не реагує на негативні в
 ```
 
 
-Тиждень 4: Розгортання у Docker, тестування та документація
+# Тиждень 4: Розгортання у Docker, тестування та документація
 
 1. Розгортання у Docker
+
 1.1. Dockerfile
 
 - Розгортання проєкту виконується через Dockerfile, який:
@@ -186,4 +173,137 @@ questions: [Чому розетка не реагує на негативні в
 - Змонтовує каталоги ./ та ./models у контейнері.
 
 - Встановлює змінну середовища TZ=UTC.
+
+2. Тестування
+
+4. Покращити модель
+
+Для точніших результатів при класифікації відгуків за тональністю, ми спробували модель multilingual-sentiment-analysis (https://huggingface.co/tabularisai/multilingual-sentiment-analysis). Вона показала кращі результати за LSTM модель:
+
+![image](https://github.com/user-attachments/assets/3eec9055-9647-4435-9c15-7dabf626ffea)
+
+### Model Evaluation Metrics
+
+| Sentiment  | Precision | Recall | F1-Score | Support |
+|------------|-----------|--------|----------|---------|
+| Negative   | 0.84      | 0.68   | 0.75     | 62      |
+| Neutral    | 0.50      | 0.61   | 0.55     | 36      |
+| Positive   | 0.75      | 0.81   | 0.78     | 53      |
+| **Accuracy** |         |        | **0.71**  | 151     |
+| **Macro Avg** | 0.70  | 0.70   | 0.69     | 151     |
+| **Weighted Avg** | 0.73  | 0.71   | 0.71     | 151     |
+
+Порівнюючи з результатами попередньої моделі (LSTM), модель multilingual-sentiment-analysis показала значне покращення в метриках Precision та Recall для класів "Negative" та "Positive".
+
+Для класу "Negative":
+- Precision збільшилася до 0.84 (порівняно з 0.69 у LSTM), що вказує на меншу кількість помилкових позитивних прогнозів.
+- Recall також покращилася до 0.68 (порівняно з 0.35 у LSTM), що означає, що модель краще виявляє приклади цього класу серед усіх можливих випадків "Negative".
+
+Для класу "Positive":
+- Precision піднялася до 0.75 (порівняно з 0.66 у LSTM), що свідчить про точніше розпізнавання позитивних відгуків серед всіх позитивних передбачень.
+- Recall також зросла до 0.81 (порівняно з 0.73 у LSTM), що демонструє здатність моделі точніше знаходити приклади позитивних відгуків серед усіх можливих класів.
+
+Для класу "Neutral":
+- Precision знизилася до 0.50 (порівняно з 0.66 у LSTM), що свідчить про більшу кількість помилкових позитивних прогнозів для цього класу.
+- Recall збільшилася до 0.61 (порівняно з 0.35 у LSTM), що вказує на покращення здатності моделі знаходити приклади нейтральних відгуків серед усіх можливих класів.
+
+
+5. Інструкція щодо запуску API та Docker
+
+## Запуск за допомогою Docker
+1. Клонування репозиторію
+
+```python
+git clone <repository_url>
+cd <repository_directory>
+```
+
+2 Збірка Docker-образу за допомогою docker-compose
+
+```python
+docker-compose up --build
+```
+
+3 Перевірка роботи API
+
+Відкрийте браузер або використайте curl:
+```python
+curl http://localhost:8000/docs
+```
+
+4. Приклад використання api з командного рядка
+
+Для подачі тексту на аналіз можна використати curl:
+```terminal
+curl -X 'POST' \
+  'http://127.0.0.1:8000/analyze' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "texts": [
+      "Приємна продавець. Жалюзі ідеально підійшли. Згодна що трохи кривий крипіж. Ковпачки з боків так і не натягнула. Там все складно. Але це не заважає функціонуванню. І все інше супер",
+      ""
+    ]
+  }'
+```
+
+Це надішле запит на сервер FastAPI до ендпоінту /analyze з наданими даними texts.
+Сервер обробить дані, виконає витягування тем, аналіз настроїв на основі аспектів та інші операції, визначені у коді.
+Відповідь буде виведена в термінал, а результати також збережуться у файлах result_full.json та result_simplified.json в робочому каталозі.
+
+5. Перевірка за допомогою test_docker.py
+
+Для тестування API запустіть test_docker.py який є в репозиторію:
+```terminal
+python test_docker.py
+```
+
+## Запуск без Docker (локально)
+
+1. Встановлення requirements.txt
+
+```python
+pip install -r requirements.txt
+```
+
+2. Запуск API
+
+```python
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+3. Перевірка роботи API
+
+```python
+curl http://localhost:8000/docs
+```
+
+4. Приклад використання api з командного рядка
+
+Для подачі тексту на аналіз можна використати curl:
+```terminal
+curl -X 'POST' \
+  'http://127.0.0.1:8000/analyze' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "texts": [
+      "Приємна продавець. Жалюзі ідеально підійшли. Згодна що трохи кривий крипіж. Ковпачки з боків так і не натягнула. Там все складно. Але це не заважає функціонуванню. І все інше супер",
+      ""
+    ]
+  }'
+```
+
+5. Перевірка за допомогою test_docker.py
+
+Для тестування API запустіть test_docker.py який є в репозиторію:
+```terminal
+python test_docker.py
+```
+
+
+
+
+
+
+
+
 
