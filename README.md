@@ -36,53 +36,24 @@
 
 Далі ми спробували LSTM. 
 
-Попробували додати attention механізм:
-
-```python
-class AttentionLayer(Layer):
-    def __init__(self):
-        super(AttentionLayer, self).__init__()
-
-    def build(self, input_shape):
-        self.W = self.add_weight(name="attn_weights", shape=(input_shape[-1], 1),
-                                 initializer="random_normal", trainable=True)
-        self.b = self.add_weight(name="attn_bias", shape=(1,), initializer="zeros", trainable=True)
-
-    def call(self, inputs):
-        scores = tf.nn.tanh(tf.matmul(inputs, self.W) + self.b)  # Compute attention scores
-        scores = tf.nn.softmax(scores, axis=1)  # Normalize scores across time steps
-        context_vector = scores * inputs  # Apply attention weights
-        context_vector = tf.reduce_sum(context_vector, axis=1)  # Summarize over sequence
-        return context_vector
-```
-
-```python
-# Hyperparameters
-max_sequence_length = 40  
-vocab_size = 5_000  
-embedding_dim = 32  
-
-# Define model architecture
-input_layer = Input(shape=(max_sequence_length,))
-embedding_layer = Embedding(input_dim=vocab_size, output_dim=embedding_dim, input_length=max_sequence_length)(input_layer)
-
-lstm_output = LSTM(64, return_sequences=True)(embedding_layer)  
-attention_output = AttentionLayer()(lstm_output)  # Apply attention
-
-dense_output = Dense(16, activation="relu")(attention_output)
-dropout_layer = Dropout(0.3)(dense_output)
-
-dense_output = Dense(16, activation="relu")(dropout_layer)
-dropout_layer = Dropout(0.3)(dense_output)
-
-output_layer = Dense(3, activation="softmax")(dropout_layer)  # Multi-class classification
-
-# Build model
-att_model = Model(inputs=input_layer, outputs=output_layer)
-att_model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
-```
-
 ![image](https://github.com/user-attachments/assets/eb06236d-1874-45eb-b8d2-eaa0a884fc49)
+
+Для покращення результатів ми додали tf-idf та n-grams:
+
+![image](https://github.com/user-attachments/assets/1285d498-59a6-479e-a6aa-ae61d5d03715)
+
+```json
+              precision    recall  f1-score   support
+
+    Negative       0.84      0.68      0.75        62
+     Neutral       0.50      0.61      0.55        36
+    Positive       0.75      0.81      0.78        53
+
+    accuracy                           0.71       151
+   macro avg       0.70      0.70      0.69       151
+weighted avg       0.73      0.71      0.71       151
+
+```
 
 
 3. Додати тональність у відповідь REST API 
