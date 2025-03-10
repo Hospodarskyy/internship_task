@@ -1,4 +1,4 @@
-Тиждень 1: Збір та попередня обробка даних
+# Тиждень 1: Збір та попередня обробка даних
 
 1. Збір відгуків (від 200 прикладів у TXT, CSV, JSON) 
 
@@ -13,7 +13,7 @@
 Також були виділені ключові сутності (товар, ціна, скарги) та тональність. Для цієї частини завдання ми використовували Mistral API та числові оцінки, залишені авторами відгуків. Деякі сутності були виділені вручну.   
 
 
-Тиждень 2: Визначення тональності тексту (Sentiment Analysis) 
+# Тиждень 2: Визначення тональності тексту (Sentiment Analysis) 
 
 1. Розробити модель для класифікації відгуків за тональністю (позитивний, нейтральний, негативний). Навчити прості ML-моделі (Naive Bayes, Logistic Regression) і порівняти їх з LSTM 
 
@@ -82,12 +82,10 @@ att_model = Model(inputs=input_layer, outputs=output_layer)
 att_model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 ```
 
-![image](https://github.com/user-attachments/assets/2ef421e2-6423-467f-9c2d-18640cf64c1e)
 ![image](https://github.com/user-attachments/assets/eb06236d-1874-45eb-b8d2-eaa0a884fc49)
 
 
-
-
+3. Додати тональність у відповідь REST API 
 
 Третім пунктом була розробка FastAPI де треба врахувати обробку пакетних даних та впровадити обробку помилок (наприклад, якщо вхідний текст порожній). 
 Тут приклад роботи api де є один пустий текст і повертається повідомлення про пустий текст:
@@ -96,15 +94,15 @@ att_model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metr
   "results": [
     {
       "text": "Чудовий продукт!",
-      "sentiment": "2"
+      "sentiment": "Positive"
     },
     {
       "text": "Цей продукт має нормальні характеристики.",
-      "sentiment": "0"
+      "sentiment": "Neutral"
     },
     {
       "text": "Жах! Не купуйте в цього продавця!",
-      "sentiment": "0"
+      "sentiment": "Negative"
     }
   ],
   "notification": "1 empty text(s) were skipped."
@@ -112,9 +110,7 @@ att_model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metr
 ```
 
 
-
-
-Тиждень 3: Класифікація відгуків за темами, виділення ключових фраз і питань 
+# Тиждень 3: Класифікація відгуків за темами, виділення ключових фраз і питань 
 
 1. Визначити основні теми (наприклад, “Обслуговування”, “Якість”, “Доставка”) 
 
