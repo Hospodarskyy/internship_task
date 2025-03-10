@@ -38,22 +38,33 @@
 
 ![image](https://github.com/user-attachments/assets/eb06236d-1874-45eb-b8d2-eaa0a884fc49)
 
+### Model Evaluation Metrics
+
+| Class   | Precision | Recall | F1-Score | Support |
+|---------|-----------|--------|----------|---------|
+| Class 0 | 0.73      | 0.35   | 0.47     | 63      |
+| Class 1 | 0.32      | 0.56   | 0.40     | 36      |
+| Class 2 | 0.66      | 0.73   | 0.69     | 52      |
+| **Accuracy** |         |        | **0.53**  | 151     |
+| **Macro Avg** | 0.57  | 0.55   | 0.52     | 151     |
+| **Weighted Avg** | 0.61  | 0.53   | 0.53     | 151     |
+
+
 Для покращення результатів ми додали tf-idf та n-grams:
 
-![image](https://github.com/user-attachments/assets/1285d498-59a6-479e-a6aa-ae61d5d03715)
+![image](https://github.com/user-attachments/assets/3eab61cc-1376-4de4-9f10-7f929a86296f)
 
-```json
-              precision    recall  f1-score   support
+### Model Evaluation Metrics
 
-    Negative       0.84      0.68      0.75        62
-     Neutral       0.50      0.61      0.55        36
-    Positive       0.75      0.81      0.78        53
+| Class   | Precision | Recall | F1-Score | Support |
+|---------|-----------|--------|----------|---------|
+| Class 0 | 0.69      | 0.73   | 0.71     | 62      |
+| Class 1 | 0.52      | 0.47   | 0.49     | 36      |
+| Class 2 | 0.68      | 0.68   | 0.68     | 53      |
+| **Accuracy** |         |        | **0.65**  | 151     |
+| **Macro Avg** | 0.63  | 0.63   | 0.63     | 151     |
+| **Weighted Avg** | 0.65  | 0.65   | 0.65     | 151     |
 
-    accuracy                           0.71       151
-   macro avg       0.70      0.70      0.69       151
-weighted avg       0.73      0.71      0.71       151
-
-```
 
 
 3. Додати тональність у відповідь REST API 
