@@ -140,7 +140,7 @@ questions: [Чому розетка не реагує на негативні в
 ```
 
 
-Тиждень 4: Розгортання у Docker, тестування та документація
+# Тиждень 4: Розгортання у Docker, тестування та документація
 
 1. Розгортання у Docker
 1.1. Dockerfile
@@ -169,3 +169,21 @@ questions: [Чому розетка не реагує на негативні в
 
 - Встановлює змінну середовища TZ=UTC.
 
+2. Тестування
+
+4. Покращити модель
+
+Для точніших результатів при класифікації відгуків за тональністю, ми спробували модель multilingual-sentiment-analysis (https://huggingface.co/tabularisai/multilingual-sentiment-analysis). Вона показала кращі результати за LSTM модель:
+
+![image](https://github.com/user-attachments/assets/3eec9055-9647-4435-9c15-7dabf626ffea)
+
+### Model Evaluation Metrics
+
+| Sentiment  | Precision | Recall | F1-Score | Support |
+|------------|-----------|--------|----------|---------|
+| Negative   | 0.84      | 0.68   | 0.75     | 62      |
+| Neutral    | 0.50      | 0.61   | 0.55     | 36      |
+| Positive   | 0.75      | 0.81   | 0.78     | 53      |
+| **Accuracy** |         |        | **0.71**  | 151     |
+| **Macro Avg** | 0.70  | 0.70   | 0.69     | 151     |
+| **Weighted Avg** | 0.73  | 0.71   | 0.71     | 151     |
