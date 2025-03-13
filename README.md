@@ -1,43 +1,44 @@
-# Тиждень 1: Збір та попередня обробка даних
+# Week 1: Data Collection and Preprocessing
 
-1. Збір відгуків (від 200 прикладів у TXT, CSV, JSON) 
+1. Collecting Reviews (200+ examples in TXT, CSV, JSON)
 
-Для роботи був використаний датасет з відгуками українською з різних сайтів. Посилання на датасет: https://huggingface.co/datasets/vkovenko/cross_domain_uk_reviews.  
-Ми вибрали 600 україномовних відгуків, які користувачі залишили на сайті Rozetka.
+The dataset used for this project consists of Ukrainian-language reviews from various websites. Dataset link: https://huggingface.co/datasets/vkovenko/cross_domain_uk_reviews.
 
-2. Очищення текстів: видалення стоп-слів, лематизація, нормалізація 
+We selected 600 Ukrainian reviews from the Rozetka website.
 
-Було проведено очищення текстів за допомогою функції, яка включала в себе видалення стоп-слів, лематизацію та нормалізацію.
+2. Text Cleaning: Stop-word Removal, Lemmatization, Normalization 
 
-3. Виділення та розмітка ключових сутностей вручну (ціна/знижки, проблеми, назви товарів/послуг) 
+Text cleaning was performed using a function that included stop-word removal, lemmatization, and normalization.
 
-Також були виділені ключові сутності (товар, ціна, скарги) та тональність. Для цієї частини завдання ми використовували Mistral API та числові оцінки, залишені авторами відгуків. Деякі сутності були виділені вручну.   
+3. Entity Recognition and Annotation (Price/Discounts, Issues, Product/Service Names)
+
+Key entities (product, price, complaints) and sentiment were extracted. We used the Mistral API and numerical ratings left by reviewers. Some entities were annotated manually.  
 
 
-# Тиждень 2: Визначення тональності тексту (Sentiment Analysis) 
+# Week 2: Sentiment Analysis 
 
-1. Розробити модель для класифікації відгуків за тональністю (позитивний, нейтральний, негативний). Навчити прості ML-моделі (Naive Bayes, Logistic Regression) і порівняти їх з LSTM 
+1. Sentiment Classification Model (Positive, Neutral, Negative)
 
-Ми здійснили класифікацію за допомогою класичних алгоритмів машинного навчання, таких як Logistic Regression, Naive Bayes, Random Forest, SVM та KNN.
+We performed sentiment classification using classical machine learning algorithms such as Logistic Regression, Naive Bayes, Random Forest, SVM, and KNN.
 
 ![image](https://github.com/user-attachments/assets/ff3502a6-c278-485c-9484-b9d206b2cf33)
 
-Однак результати для всіх моделей виявилися досить схожими. 
+However, results across all models were similar.
+
 <img width="518" alt="image" src="https://github.com/user-attachments/assets/f8efda82-6306-4d83-b6f8-3c8bf206ec2c" />
 
-Спостерігається, що модель значно некоректно класифікує клас "Neutral". Загальна точність передбачень не демонструє суттєвого покращення порівняно з випадковими прогнозами.
+The model incorrectly classified the "Neutral" class. Overall prediction accuracy showed no significant improvement over random guessing.
 
-Оскільки результати були незадовільними, ми вирішили збільшити кількість прикладів класів "Positive" та "Neutral" у датасеті.
+To improve results, we increased the number of examples for "Positive" and "Neutral" classes in the dataset.
 
 <img width="1115" alt="image" src="https://github.com/user-attachments/assets/e38312e7-2203-45dc-970d-dc9aaaebc325" />
-
 
 ![image](https://github.com/user-attachments/assets/affee725-417a-43cf-8158-f2d35fc9d031)
 <img width="530" alt="image" src="https://github.com/user-attachments/assets/9a90cae6-b129-4b0d-bec1-6862f5fbefe2" />
 
-На жаль, покращення було незначним, однак модель все ж навчилася не класифікувати всі приклади як "Negative".
+After augmentation, the improvement was minor, but the model no longer classified all examples as "Negative."
 
-У подальшому ми застосували LSTM для покращення якості класифікації.
+We then applied an LSTM model to improve classification accuracy.
 
 ![image](https://github.com/user-attachments/assets/eb06236d-1874-45eb-b8d2-eaa0a884fc49)
 
@@ -53,7 +54,7 @@
 | **Weighted Avg** | 0.61  | 0.53   | 0.53     | 151     |
 
 
-Для досягнення кращих результатів ми також додали представлення тексту за допомогою tf-idf та n-grams:
+To further improve results, we added text representation using TF-IDF and n-grams:
 
 ![image](https://github.com/user-attachments/assets/3eab61cc-1376-4de4-9f10-7f929a86296f)
 
@@ -68,13 +69,14 @@
 | **Macro Avg** | 0.63  | 0.63   | 0.63     | 151     |
 | **Weighted Avg** | 0.65  | 0.65   | 0.65     | 151     |
 
-У порівнянні з початковими результатами, де точність моделі становила 0.53, після застосування tf-idf та n-grams точність покращилася до 0.65. Це свідчить про значне покращення якості класифікації, зокрема у класах "Class 0" та "Class 2", де спостерігається підвищення значень Precision та Recall. Водночас, клас "Class 1" залишається менш точно класифікованим, але загальна ефективність моделі суттєво зросла. 
+Compared to the initial results (accuracy: 0.53), using TF-IDF and n-grams improved accuracy to 0.65. The classification performance for "Class 0" and "Class 2" improved significantly, but "Class 1" remains less accurately classified.
 
 
-3. Додати тональність у відповідь REST API 
+2. Sentiment Detection in REST API Response
 
-Третім пунктом була розробка FastAPI де треба врахувати обробку пакетних даних та впровадити обробку помилок (наприклад, якщо вхідний текст порожній). 
-Тут приклад роботи api де є один пустий текст і повертається повідомлення про пустий текст:
+The FastAPI implementation includes batch data processing and error handling (e.g., empty text input).
+
+Example API output with one empty text:
 ```json
 {
   "results": [
@@ -96,35 +98,36 @@
 ```
 
 
-# Тиждень 3: Класифікація відгуків за темами, виділення ключових фраз і питань 
+# Week 3: Review Topic Classification, Key Phrase, and Question Extraction
 
-1. Визначити основні теми (наприклад, “Обслуговування”, “Якість”, “Доставка”) 
+1.  Identifying Main Topics (e.g., "Service", "Quality", "Delivery")
 
 Для класифікації відгуків за темами ми використали BERTopic. Ця модель добре працює з неструктурованими текстовими даними, дозволяючи автоматично виявляти тематичні кластери у відгуках.
 
-Ідея нашого рішення полягає в тому, що зі всіх знайдених моделлю тем ми будемо групувати їх у категорії, які дійсно корисні для продавця. Наприклад, якщо у відгуку міститься інформація про знижки або високу ціну, ми відносимо його до теми "Ціна", незалежно від того, чи йдеться про побутові товари, техніку чи інші категорії. Додаткова деталізація, така як тип товару, не є критичною, оскільки її можна отримати безпосередньо з каталогу вебсайту, а не з аналізу тексту.
+We used BERTopic for topic modeling. It helps identify meaningful thematic clusters in reviews.
+
+Our approach involves grouping the detected topics into categories that are useful for sellers. For instance, if a review mentions discounts or high prices, we classify it under "Price," regardless of whether it concerns household goods, electronics, or other categories. Additional details, such as product type, are not critical since they can be extracted directly from the website catalog rather than through text analysis.
+
+Identified key topics:
+
+- Price – price, discounts, promotions.
+
+- User Experience – personal impressions after use.
+
+- Recommendations – whether the user recommends the product.
+
+- Delivery/Service – evaluation of the delivery and service process.
+
+- Quality – product quality, defects, reliability.
+
+This approach helps focus on information most valuable for analysis and decision-making by sellers.
 
 
-На основі аналізу ми визначили наступні ключові теми, які будемо відслідковувати:
+2. Extracting Key Complaints and Positive Aspects
 
-- Ціна – інформація про ціну, знижки, акції.
+We used aspect-based sentiment analysis (ABSA) via PyABSA (https://github.com/yangheng95/PyABSA) since it supports multiple languages, including Ukrainian. This model can extract key entities from text and perform sentiment analysis on them.
 
-- Досвід використання – особисті враження користувача після використання товару.
-
-- Рекомендації – чи рекомендує користувач товар, чи ні.
-
-- Доставка/Обслуговування – оцінка процесу доставки та якості обслуговування.
-
-- Якість – інформація про якість товару, дефекти, надійність.
-
-Цей підхід дозволяє сфокусуватися на інформації, яка має найбільшу цінність для аналізу та прийняття рішень продавцем.
-
-
-2. Виділити ключові скарги та позитивні моменти (наприклад, “Доставка затрималася на 3 дні”, “Чудовий сервіс!”)
-
-Для вирішення цього завдання ми використали apsect-based sentiment analisys model (ABSA). Конкретніше pyABSA (https://github.com/yangheng95/PyABSA) адже вона була навчена на багатьох мовах, включно з українською. 
-Ця модель здатна виділяти основні сутності в тексті і щодо них робити семантичний аналіз:
-
+Example:
 ```text
 Review: дуже задоволена покупкою. тканина дуже плотна. прошите гарно. наповнювач також всередині плотний. тепле однозначно. і водночас легке. готуємось до зими в умовах війни(((
 
@@ -132,10 +135,11 @@ aspects: ['тканина', 'наповнювач']
 sentiments: ['Positive', 'Positive']
 ```
 
-3. Автоматично знаходити запитання в текстах (наприклад, “Як скасувати замовлення?”)
+3. Automatic Question Detection in Text
 
-Для цього ми використали функції бібліотеки spacy.load("uk_core_news_md") і здійснили додатково пошук по ключових словах, таких як: "що", "чому", "де", "коли", "скільки", "звідки" тощо:
+We used spacy.load("uk_core_news_md") and keyword searches ("що", "чому", "де", "коли", "скільки", "звідки", etc.).
 
+Example:
 ```text
 Review:
 Чому розетка не реагує на негативні відгуки та запитання? Дуже швидко перестав працювати основний брелок. Сенс двосторонньої сигналізації зник 
@@ -144,41 +148,34 @@ questions: [Чому розетка не реагує на негативні в
 ```
 
 
-# Тиждень 4: Розгортання у Docker, тестування та документація
+# Week 4: Deployment in Docker, Testing, and Documentation
 
-1. Розгортання у Docker
+1. Deployment in Docker
 
-1.1. Dockerfile
+Dockerfile
 
-- Розгортання проєкту виконується через Dockerfile, який:
+- Uses python:3.9-slim as base.
 
-- Використовує базовий образ python:3.9-slim.
+- Installs dependencies (gcc, g++, git, libomp5).
 
-- Встановлює необхідні системні залежності (gcc, g++, git, libomp5).
+- Optimizes Python package installation.
 
-- Оптимізує встановлення Python-пакетів (розбивка на кроки для покращення кешування).
+- Downloads the uk_core_news_md spaCy model.
 
-- Завантажує мовну модель spaCy для української мови (uk_core_news_md).
+- Exposes port 8000 and runs FastAPI.
 
-- Визначає відкритий порт 8000 та команду запуску FastAPI.
+Docker Compose
 
-1.2. Docker Compose
+- Defines api service.
 
-Файл docker-compose.yaml описує сервіс api, який:
+- Maps ./ and ./models directories.
 
-- Використовує поточний каталог для побудови образу.
+- Sets TZ=UTC.
 
-- Проброшує порт 8000.
 
-- Змонтовує каталоги ./ та ./models у контейнері.
+2. Model Improvement
 
-- Встановлює змінну середовища TZ=UTC.
-
-2. Тестування
-
-4. Покращити модель
-
-Для точніших результатів при класифікації відгуків за тональністю, ми спробували модель multilingual-sentiment-analysis (https://huggingface.co/tabularisai/multilingual-sentiment-analysis). Вона показала кращі результати за LSTM модель:
+For more accurate results in sentiment classification, we tested the multilingual-sentiment-analysis model (https://huggingface.co/tabularisai/multilingual-sentiment-analysis). It outperformed the LSTM model:
 
 ![image](https://github.com/user-attachments/assets/3eec9055-9647-4435-9c15-7dabf626ffea)
 
@@ -193,47 +190,51 @@ questions: [Чому розетка не реагує на негативні в
 | **Macro Avg** | 0.70  | 0.70   | 0.69     | 151     |
 | **Weighted Avg** | 0.73  | 0.71   | 0.71     | 151     |
 
-Порівнюючи з результатами попередньої моделі (LSTM), модель multilingual-sentiment-analysis показала значне покращення в метриках Precision та Recall для класів "Negative" та "Positive".
 
-Для класу "Negative":
-- Precision збільшилася до 0.84 (порівняно з 0.69 у LSTM), що вказує на меншу кількість помилкових позитивних прогнозів.
-- Recall також покращилася до 0.68 (порівняно з 0.35 у LSTM), що означає, що модель краще виявляє приклади цього класу серед усіх можливих випадків "Negative".
+Compared to the previous LSTM model, the multilingual-sentiment-analysis model showed significant improvements in Precision and Recall for the "Negative" and "Positive" classes.
 
-Для класу "Positive":
-- Precision піднялася до 0.75 (порівняно з 0.66 у LSTM), що свідчить про точніше розпізнавання позитивних відгуків серед всіх позитивних передбачень.
-- Recall також зросла до 0.81 (порівняно з 0.73 у LSTM), що демонструє здатність моделі точніше знаходити приклади позитивних відгуків серед усіх можливих класів.
+For the "Negative" class:
 
-Для класу "Neutral":
-- Precision знизилася до 0.50 (порівняно з 0.66 у LSTM), що свідчить про більшу кількість помилкових позитивних прогнозів для цього класу.
-- Recall збільшилася до 0.61 (порівняно з 0.35 у LSTM), що вказує на покращення здатності моделі знаходити приклади нейтральних відгуків серед усіх можливих класів.
+- Precision increased to 0.84 (compared to 0.69 in LSTM), indicating fewer false positives.
+- Recall improved to 0.68 (compared to 0.35 in LSTM), meaning the model better detects negative cases.
+
+For the "Positive" class:
+
+- Precision rose to 0.75 (compared to 0.66 in LSTM), improving the recognition of positive reviews.
+- Recall increased to 0.81 (compared to 0.73 in LSTM), showing better detection of positive cases.
+
+For the "Neutral" class:
+
+- Precision dropped to 0.50 (compared to 0.66 in LSTM), meaning more false positives for this class.
+- Recall improved to 0.61 (compared to 0.35 in LSTM), indicating better recognition of neutral reviews.
 
 
-5. Інструкція щодо запуску API та Docker
+5. Instructions for Running the API and Docker
 
-## Запуск за допомогою Docker
-1. Клонування репозиторію
+## Running with Docker
+1. Clone the repository
 
 ```python
 git clone <repository_url>
 cd <repository_directory>
 ```
 
-2 Збірка Docker-образу за допомогою docker-compose
+2 Build the Docker image using docker-compose
 
 ```python
 docker-compose up --build
 ```
 
-3 Перевірка роботи API
+3 Check if the API is running
 
-Відкрийте браузер або використайте curl:
+Open a browser or use curl:
 ```python
 curl http://localhost:8000/docs
 ```
 
-4. Приклад використання api з командного рядка
+4. Example API usage from the command line
 
-Для подачі тексту на аналіз можна використати curl:
+To send text for analysis, use curl:
 ```terminal
 curl -X 'POST' \
   'http://127.0.0.1:8000/analyze' \
@@ -246,40 +247,40 @@ curl -X 'POST' \
   }'
 ```
 
-Це надішле запит на сервер FastAPI до ендпоінту /analyze з наданими даними texts.
-Сервер обробить дані, виконає витягування тем, аналіз настроїв на основі аспектів та інші операції, визначені у коді.
-Відповідь буде виведена в термінал, а результати також збережуться у файлах result_full.json та result_simplified.json в робочому каталозі.
+This sends a request to the FastAPI server at the /analyze endpoint.
+The server will process the data, perform topic extraction, aspect-based sentiment analysis, and other operations as defined in the code.
+The response will be displayed in the terminal, and results will also be saved in result_full.json and result_simplified.json in the working directory.
 
-5. Перевірка за допомогою test_docker.py
+5. Running tests with test_docker.py
 
-Для тестування API запустіть test_docker.py який є в репозиторію:
+To test the API, run the test_docker.py script from the repository:
 ```terminal
 python test_docker.py
 ```
 
-## Запуск без Docker (локально)
+## Running Locally (Without Docker)
 
-1. Встановлення requirements.txt
+1. Install dependencies from requirements.txt
 
 ```python
 pip install -r requirements.txt
 ```
 
-2. Запуск API
+2. Start the API
 
 ```python
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-3. Перевірка роботи API
+3. Check if the API is running
 
 ```python
 curl http://localhost:8000/docs
 ```
 
-4. Приклад використання api з командного рядка
+4. Example API usage from the command line
 
-Для подачі тексту на аналіз можна використати curl:
+To send text for analysis, use curl:
 ```terminal
 curl -X 'POST' \
   'http://127.0.0.1:8000/analyze' \
@@ -292,14 +293,30 @@ curl -X 'POST' \
   }'
 ```
 
-5. Перевірка за допомогою test_docker.py
+5. Running tests with test_docker.py
 
-Для тестування API запустіть test_docker.py який є в репозиторію:
+To test the API, run the test_docker.py script from the repository:
 ```terminal
 python test_docker.py
 ```
 
 
+6. Example Usage
+
+Input - API Request:
+```terminal
+curl -X 'POST' \
+  'http://127.0.0.1:8000/analyze' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "texts": [
+      "Приємна продавець. Жалюзі ідеально підійшли. Згодна що трохи кривий крипіж. Ковпачки з боків так і не натягнула. Там все складно. Але це не заважає функціонуванню. І все інше супер",
+      ""
+    ]
+  }'
+```
+
+API Response (Example Output):
 
 
 
